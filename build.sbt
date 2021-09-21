@@ -3,10 +3,10 @@ import sbt.project
 
 val scalaV = "2.12.2"
 
-lazy val service1 = project
-  .in(file("service1"))
+lazy val sharedUser = project
+  .in(file("shared/user"))
   .settings(
-    name := "service1",
+    name := "shared_user",
     version := "1.0",
     scalaVersion := scalaV,
     libraryDependencies ++= Seq(
@@ -19,6 +19,35 @@ lazy val service1 = project
       Dependencies.http4sClient,
       Dependencies.http4sDsl,
       Dependencies.http4s,
+      Dependencies.endpointsHttp4sClient,
+      Dependencies.endpointsHttp4sServer,
+      Dependencies.http4sCirce,
+      Dependencies.logbackGelf,
+      Dependencies.circeGeneric,
+      Dependencies.circeGenericExtras,
+      Dependencies.endpoints,
+      Dependencies.endpointsCirce,
+      Dependencies.joda
+    ),
+    Universal / packageName := "shared_user",
+  )
+  .enablePlugins(JavaAppPackaging)
+
+lazy val service1 = project
+  .in(file("service1"))
+  .settings(
+    name := "service1",
+    version := "1.0",
+    scalaVersion := scalaV,
+    libraryDependencies ++= Seq(
+      Dependencies.cats,
+      Dependencies.catsEffect,
+      Dependencies.logback,
+      Dependencies.http4sServer,
+      Dependencies.http4sClient,
+      Dependencies.http4sDsl,
+      Dependencies.pureConfig,
+      Dependencies.http4s,
       Dependencies.http4sCirce,
       Dependencies.logbackGelf,
       Dependencies.joda
@@ -26,6 +55,7 @@ lazy val service1 = project
     Universal / packageName := "service1",
   )
   .enablePlugins(JavaAppPackaging)
+  .dependsOn(sharedUser)
 
 lazy val daemon1 = project
   .in(file("daemon1"))

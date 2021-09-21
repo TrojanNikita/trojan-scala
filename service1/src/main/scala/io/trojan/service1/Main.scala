@@ -1,21 +1,25 @@
 package io.trojan.service1
 
+import scala.concurrent.ExecutionContext
+
 import cats.effect.{ExitCode, IO, IOApp}
-import distage.Injector
-import izumi.distage.model.plan.Roots
+import org.http4s.server.blaze.BlazeServerBuilder
+import pureconfig.ConfigSource
 
 object Main extends IOApp {
-  override def run(args: List[String]):IO[ExitCode] = {
+  override def run(args: List[String]): IO[ExitCode] = {
 
-    val plan = Injector().plan(AppModule[IO],Roots.target[SimpleEndpoint[IO]])
+    implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
 
-    Injector[IO]()
-      .produce(plan)
-      .use(_.get[SimpleEndpoint[IO]].run)
+    val conf = ConfigSource.default.loadOrThrow[Config].server
+    val router = new AppRouter[IO]
+
+    BlazeServerBuilder[IO](ec)
+      .bindHttp(conf.port, conf.host)
+      .withHttpApp(router.allRoutes)
+      .serve
+      .compile
+      .drain
       .as(ExitCode.Success)
   }
 }
-
-//object Main extends App {
-//  println("ada")
-//}

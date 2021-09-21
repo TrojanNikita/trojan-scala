@@ -9,9 +9,9 @@ services:
       dockerfile: service1/Dockerfile
     image: service1:latest
     expose:
-      - 8080
+      - 9001
     ports:
-      - 8080:8080
+      - 9001:9001
 
   daemon1:
     container_name: daemon1
