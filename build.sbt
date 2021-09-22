@@ -1,7 +1,7 @@
 import com.typesafe.sbt.SbtNativePackager.autoImport.packageName
 import sbt.project
 
-val scalaV = "2.12.2"
+val scalaV = "2.13.6"
 
 lazy val sharedUser = project
   .in(file("shared/user"))
@@ -13,12 +13,8 @@ lazy val sharedUser = project
       Dependencies.cats,
       Dependencies.catsEffect,
       Dependencies.logback,
-      Dependencies.diStage,
-      Dependencies.diStage,
       Dependencies.http4sServer,
       Dependencies.http4sClient,
-      Dependencies.http4sDsl,
-      Dependencies.http4s,
       Dependencies.endpointsHttp4sClient,
       Dependencies.endpointsHttp4sServer,
       Dependencies.http4sCirce,
@@ -43,11 +39,13 @@ lazy val service1 = project
       Dependencies.cats,
       Dependencies.catsEffect,
       Dependencies.logback,
+      Dependencies.doobie,
+      Dependencies.doobieHikari,
+      Dependencies.doobieQuill,
+      Dependencies.doobiePostgres,
       Dependencies.http4sServer,
       Dependencies.http4sClient,
-      Dependencies.http4sDsl,
       Dependencies.pureConfig,
-      Dependencies.http4s,
       Dependencies.http4sCirce,
       Dependencies.logbackGelf,
       Dependencies.joda
@@ -66,12 +64,8 @@ lazy val daemon1 = project
     libraryDependencies ++= Seq(
       Dependencies.cats,
       Dependencies.catsEffect,
-      Dependencies.diStage,
-      Dependencies.diStage,
       Dependencies.http4sServer,
       Dependencies.http4sClient,
-      Dependencies.http4sDsl,
-      Dependencies.http4s,
       Dependencies.http4sCirce,
       Dependencies.joda
     ),
