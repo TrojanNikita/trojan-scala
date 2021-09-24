@@ -2,24 +2,34 @@ version: '3.1'
 
 services:
 
-  service1:
-    container_name: service1
-    build:
-      context: .
-      dockerfile: service1/Dockerfile
-    image: service1:latest
+  postgres_db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
     expose:
-      - 8080
+      - 5432
     ports:
-      - 8080:8080
+      - 5432:5432
 
-  daemon1:
-    container_name: daemon1
+  user_service:
+    container_name: user_service
     build:
       context: .
-      dockerfile: daemon1/Dockerfile
-    image: daemon1:latest
+      dockerfile: user_service/Dockerfile
+    image: user_service:latest
     expose:
-      - 8081
+      - 9001
     ports:
-      - 8081:8081
+      - 9001:9001
+
+  user_daemon:
+    container_name: user_daemon
+    build:
+      context: .
+      dockerfile: user_daemon/Dockerfile
+    image: user_daemon:latest
+    expose:
+      - 9002
+    ports:
+      - 9002:9002
