@@ -36,6 +36,8 @@ object Dependencies {
   val enumeratumDoobie      = "com.beachape"               %% "enumeratum-doobie"             % "1.6.0"
 
   val http4sCirce           = "org.http4s"                 %% "http4s-circe"                  % http4sV
+  val http4sDsl             = "org.http4s"                 %% "http4s-dsl"                    % http4sV
+  val http4sS               = "org.http4s"                 %% "http4s-server"                 % http4sV
   val http4sClient          = "org.http4s"                 %% "http4s-blaze-client"           % http4sV
   val http4sServer          = "org.http4s"                 %% "http4s-blaze-server"           % http4sV
 

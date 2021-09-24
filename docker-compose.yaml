@@ -3,33 +3,43 @@ version: '3.1'
 services:
 
   postgres_db:
+    container_name: user_postgres
     image: postgres:latest
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
-    expose:
-      - 5432
+    command: postgres -c listen_addresses="*"
     ports:
       - 5432:5432
 
   user_service:
     container_name: user_service
+    restart: always
     build:
       context: .
       dockerfile: user_service/Dockerfile
     image: user_service:latest
+    environment:
+      USER_POSTGRES_HOST: user_postgres
     expose:
       - 9001
     ports:
       - 9001:9001
+    command:
+      -Dconfig.resource=application.conf -Dlogger.resource=logback.xml
 
   user_daemon:
     container_name: user_daemon
+    restart: always
     build:
       context: .
       dockerfile: user_daemon/Dockerfile
     image: user_daemon:latest
+    environment:
+      USER_SERVICE_HOST: user_service
     expose:
       - 9002
     ports:
       - 9002:9002
+    command:
+      -Dconfig.resource=application.conf -Dlogger.resource=logback.xml

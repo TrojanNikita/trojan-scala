@@ -9,6 +9,8 @@ import io.trojan.user_service.dao.UserDao
 import io.trojan.user_service.routes.AppRouter
 import io.trojan.user_service.utils.{Sql, SqlImpl}
 import org.http4s.blaze.server.BlazeServerBuilder
+import org.typelevel.log4cats.{Logger, SelfAwareStructuredLogger}
+import org.typelevel.log4cats.slf4j.Slf4jLogger
 import pureconfig.ConfigSource
 
 object UserServiceApplication extends IOApp {
@@ -23,6 +25,7 @@ object UserServiceApplication extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
 
     implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
+    implicit def unsafeLogger[F[_]]: SelfAwareStructuredLogger[IO] = Slf4jLogger.getLogger[IO]
 
     val conf: Config = ConfigSource.default.loadOrThrow[Config]
 
@@ -31,6 +34,7 @@ object UserServiceApplication extends IOApp {
     val userDao: UserDao[IO] = new UserDao.MySql(sql)
     val router: AppRouter[IO] = new AppRouter[IO](userDao)
 
+    Logger[IO].info(s"start server at ${conf.postgres.url}") >>
     BlazeServerBuilder[IO](ec)
       .bindHttp(conf.server.port, conf.server.host)
       .withHttpApp(router.allRoutes)

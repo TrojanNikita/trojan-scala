@@ -1,11 +1,11 @@
 Запуск дев:
 ```
-sbt -Dconfig.resource=application.conf -Dlogback.configurationFile=logback.xml user_service/run
+sbt -Dconfig.resource=application-dev.conf -Dlogback.configurationFile=logback.xml user_service/run
 ```
 
 Поднятие докер контейнера:
 ```
-sbt -Dconfig.resource=application.conf -Dlogback.configurationFile=logback.xml user_service/universal:packageZipTarball
+sbt user_service/universal:packageZipTarball
 docker-compose build
 docker-compose up
 ```

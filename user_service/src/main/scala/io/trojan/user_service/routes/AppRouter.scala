@@ -2,9 +2,10 @@ package io.trojan.user_service.routes
 
 import cats.effect.Async
 import cats.implicits.toSemigroupKOps
+import io.trojan.rpc.UserApiAlg
 import io.trojan.user_service.dao.UserDao
-import io.trojan.user.UserApiAlg
 import org.http4s.implicits._
+import org.http4s.server.middleware._
 import org.http4s.{HttpApp, HttpRoutes}
 
 class AppRouter[F[_] : Async](
@@ -26,7 +27,17 @@ class AppRouter[F[_] : Async](
     }
   }
 
+  private def deleteUser: HttpRoutes[F] = HttpRoutes.of[F] {
+    deleteUserApi.implementedByEffect { _ =>
+      userDao.deleteUsers()
+    }
+  }
+
   def allRoutes: HttpApp[F] = {
-    (getUsers <+> createUser).orNotFound
+    val routes = (getUsers <+> createUser <+> deleteUser).orNotFound
+    CORS.policy
+      .withAllowOriginAll
+      .withAllowCredentials(false)
+      .apply(routes)
   }
 }
