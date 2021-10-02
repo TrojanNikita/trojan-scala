@@ -16,7 +16,9 @@ lazy val common = project
       Dependencies.catsEffect,
       Dependencies.circe,
       Dependencies.circeGeneric,
-      Dependencies.circeGenericExtras
+      Dependencies.circeGenericExtras,
+      Dependencies.circeParser,
+      Dependencies.redisson
     ),
     Universal / packageName := "common"
   )

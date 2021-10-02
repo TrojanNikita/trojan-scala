@@ -2,6 +2,100 @@ version: '3.1'
 
 services:
 
+
+  redis_node_0:
+    container_name: redis_node_0
+    image: docker.io/bitnami/redis-cluster:latest
+    restart: always
+    ports:
+      - 6380:6379
+      - 16380:16379
+    environment:
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+      - 'REDIS_PORT=6380'
+      - 'REDIS_NODES=redis_node_0 redis_node_1 redis_node_2 redis_node_3 redis_node_4 redis_node_5'
+
+  redis_node_1:
+    container_name: redis_node_1
+    image: docker.io/bitnami/redis-cluster:latest
+    restart: always
+    ports:
+      - 6381:6379
+      - 16381:16379
+    environment:
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+      - 'REDIS_PORT=6381'
+      - 'REDIS_NODES=redis_node_0 redis_node_1 redis_node_2 redis_node_3 redis_node_4 redis_node_5'
+
+  redis_node_2:
+    container_name: redis_node_2
+    image: docker.io/bitnami/redis-cluster:latest
+    restart: always
+    ports:
+      - 6382:6379
+      - 16382:16379
+    environment:
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+      - 'REDIS_PORT=6382'
+      - 'REDIS_NODES=redis_node_0 redis_node_1 redis_node_2 redis_node_3 redis_node_4 redis_node_5'
+
+  redis_node_3:
+    container_name: redis_node_3
+    image: docker.io/bitnami/redis-cluster:latest
+    restart: always
+    ports:
+      - 6383:6379
+      - 16383:16379
+    environment:
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+      - 'REDIS_PORT=6383'
+      - 'REDIS_NODES=redis_node_0 redis_node_1 redis_node_2 redis_node_3 redis_node_4 redis_node_5'
+
+  redis_node_4:
+    container_name: redis_node_4
+    image: docker.io/bitnami/redis-cluster:latest
+    restart: always
+    ports:
+      - 6384:6379
+      - 16384:16379
+    environment:
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+      - 'REDIS_PORT=6384'
+      - 'REDIS_NODES=redis_node_0 redis_node_1 redis_node_2 redis_node_3 redis_node_4 redis_node_5'
+
+  redis_node_5:
+    container_name: redis_node_5
+    image: docker.io/bitnami/redis-cluster:latest
+    restart: always
+    ports:
+      - 6385:6379
+      - 16385:16379
+    environment:
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+      - 'REDIS_PORT=6385'
+      - 'REDIS_NODES=redis_node_0 redis_node_1 redis_node_2 redis_node_3 redis_node_4 redis_node_5'
+
+  redis_cluster_init:
+    container_name: redis_cluster_init
+    image: docker.io/bitnami/redis-cluster:latest
+    restart: "no"
+    ports:
+      - 6379:6379
+      - 16379:16379
+    depends_on:
+      - redis_node_0
+      - redis_node_1
+      - redis_node_2
+      - redis_node_3
+      - redis_node_4
+      - redis_node_5
+    environment:
+      - 'REDIS_PORT=6379'
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+      - 'REDIS_CLUSTER_REPLICAS=1'
+      - 'REDIS_NODES=redis_cluster_init redis_node_0 redis_node_1 redis_node_2 redis_node_3 redis_node_4 redis_node_5'
+      - 'REDIS_CLUSTER_CREATOR=yes'
+
   postgres_db:
     container_name: user_postgres
     image: postgres:latest
@@ -20,7 +114,8 @@ services:
       dockerfile: user_service/Dockerfile
     image: user_service:latest
     environment:
-      USER_POSTGRES_HOST: user_postgres
+      - 'USER_POSTGRES_HOST=user_postgres'
+      - 'REDIS_NODES=redis_node_0,redis_node_1,redis_node_2,redis_node_3,redis_node_4,redis_node_5'
     expose:
       - 9001
     ports:
@@ -43,3 +138,7 @@ services:
       - 9002:9002
     command:
       -Dconfig.resource=application.conf -Dlogger.resource=logback.xml
+
+networks:
+  redis_net:
+    driver: bridge

@@ -18,6 +18,9 @@ object Dependencies {
   val circe                 = "io.circe"                   %% "circe-core"                    % circeV
   val circeGeneric          = "io.circe"                   %% "circe-generic"                 % circeV
   val circeGenericExtras    = "io.circe"                   %% "circe-generic-extras"          % circeV
+  val circeParser           = "io.circe"                   %% "circe-parser"                  % circeV
+
+  val redisson = "org.redisson" % "redisson" % "3.16.2"
 
   val fs2 = "co.fs2" %% "fs2-core" % "3.1.2"
 

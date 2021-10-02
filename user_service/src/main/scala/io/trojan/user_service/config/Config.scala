@@ -12,7 +12,7 @@ case class PostgresConfig(
   password: String
 )
 
-case class Config(server: ServerConfig, postgres: PostgresConfig)
+case class Config(server: ServerConfig, postgres: PostgresConfig, redis: RedisConfig)
 
 object ServerConfig {
   implicit val codec: ConfigReader[ServerConfig] = deriveReader[ServerConfig]
