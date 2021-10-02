@@ -67,6 +67,30 @@ lazy val user_service = project
   .enablePlugins(JavaAppPackaging)
   .dependsOn(common, rpc)
 
+
+lazy val socket_service = project
+  .in(file("socket_service"))
+  .settings(options)
+  .settings(
+    name := "socket_service",
+    version := "1.0",
+    scalaVersion := scalaV,
+    libraryDependencies ++= Seq(
+      Dependencies.doobie,
+      Dependencies.doobiePostgres,
+      Dependencies.http4sServer,
+      Dependencies.http4sClient,
+      Dependencies.pureConfig,
+      Dependencies.http4sCirce,
+      Dependencies.http4sS,
+      Dependencies.logCatsSlf4,
+      Dependencies.joda
+    ),
+    Universal / packageName := "socket_service",
+  )
+  .enablePlugins(JavaAppPackaging)
+  .dependsOn(common, rpc)
+
 lazy val user_daemon = project
   .in(file("user_daemon"))
   .settings(options)
