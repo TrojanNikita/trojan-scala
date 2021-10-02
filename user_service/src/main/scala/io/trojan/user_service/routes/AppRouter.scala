@@ -4,12 +4,13 @@ import cats.effect.Async
 import cats.implicits.toSemigroupKOps
 import io.trojan.rpc.UserApiAlg
 import io.trojan.user_service.dao.UserDao
+import io.trojan.user_service.service.UserService
 import org.http4s.implicits._
 import org.http4s.server.middleware._
 import org.http4s.{HttpApp, HttpRoutes}
 
 class AppRouter[F[_] : Async](
-  userDao: UserDao[F]
+  userService: UserService[F]
 )
   extends endpoints4s.http4s.server.Endpoints[F]
     with UserApiAlg
@@ -17,19 +18,19 @@ class AppRouter[F[_] : Async](
 
   private def getUsers: HttpRoutes[F] = HttpRoutes.of[F] {
     getUsersApi.implementedByEffect { _ =>
-      userDao.selectUsers()
+      userService.getUsers()
     }
   }
 
   private def createUser: HttpRoutes[F] = HttpRoutes.of[F] {
     postUserApi.implementedByEffect { u =>
-      userDao.insertUser(u)
+      userService.createUser(u)
     }
   }
 
   private def deleteUser: HttpRoutes[F] = HttpRoutes.of[F] {
     deleteUserApi.implementedByEffect { _ =>
-      userDao.deleteUsers()
+      userService.deleteUser()
     }
   }
 
