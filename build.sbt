@@ -18,6 +18,7 @@ lazy val common = project
       Dependencies.circeGeneric,
       Dependencies.circeGenericExtras,
       Dependencies.circeParser,
+      Dependencies.pureConfig,
       Dependencies.redisson
     ),
     Universal / packageName := "common"

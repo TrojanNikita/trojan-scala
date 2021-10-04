@@ -3,7 +3,6 @@ package io.trojan.user_service.routes
 import cats.effect.Async
 import cats.implicits.toSemigroupKOps
 import io.trojan.rpc.UserApiAlg
-import io.trojan.user_service.dao.UserDao
 import io.trojan.user_service.service.UserService
 import org.http4s.implicits._
 import org.http4s.server.middleware._

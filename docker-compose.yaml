@@ -105,6 +105,8 @@ services:
     command: postgres -c listen_addresses="*"
     ports:
       - 5432:5432
+    volumes:
+      - pg_project:/var/lib/postgresql/data
 
   user_service:
     container_name: user_service
@@ -120,6 +122,24 @@ services:
       - 9001
     ports:
       - 9001:9001
+    depends_on:
+      - postgres_db
+    command:
+      -Dconfig.resource=application.conf -Dlogger.resource=logback.xml
+
+  socket_service:
+    container_name: socket_service
+    restart: always
+    build:
+      context: .
+      dockerfile: socket_service/Dockerfile
+    image: socket_service:latest
+    environment:
+      - 'REDIS_NODES=redis_node_0,redis_node_1,redis_node_2,redis_node_3,redis_node_4,redis_node_5'
+    expose:
+      - 9003
+    ports:
+      - 9003:9003
     command:
       -Dconfig.resource=application.conf -Dlogger.resource=logback.xml
 
@@ -138,6 +158,10 @@ services:
       - 9002:9002
     command:
       -Dconfig.resource=application.conf -Dlogger.resource=logback.xml
+
+
+volumes:
+  pg_project:
 
 networks:
   redis_net:

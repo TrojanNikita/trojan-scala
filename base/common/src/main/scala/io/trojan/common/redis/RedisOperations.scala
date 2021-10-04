@@ -2,15 +2,10 @@ package io.trojan.common.redis
 
 import java.util.concurrent.TimeUnit
 
-import scala.concurrent.Future
 import scala.jdk.CollectionConverters.{IterableHasAsScala, ListHasAsScala, MapHasAsJava, MapHasAsScala}
-import scala.util.Success
 
 import cats.Applicative
-import cats.effect.kernel.Sync
 import cats.implicits.catsSyntaxApplicativeId
-import io.circe.{Decoder, Encoder}
-import io.trojan.common.redis.RedisCodecOps.{RedisDecoder, RedisEncoder}
 import org.redisson.api._
 import org.redisson.api.stream.{StreamAddArgs, StreamReadGroupArgs}
 import org.redisson.client.codec.StringCodec
@@ -51,13 +46,13 @@ trait RedisOperations[F[_]] {
 
   def del(keySet: Set[String]): F[Long]
 
-  def sAdd[T: Encoder](key: String, value: T): F[Boolean]
+  def sAdd(key: String, value: String): F[Boolean]
 
   def sMembers(key: String): F[Set[String]]
 
-  def setEx[T: Encoder](key: String, seconds: Long, value: T): F[Unit]
+  def setEx(key: String, seconds: Long, value: String): F[Unit]
 
-  def get[T: Decoder](key: String): F[Option[T]]
+  def get(key: String): F[Option[String]]
 }
 
 object RedisOperations {
@@ -74,9 +69,8 @@ object RedisOperations {
       stream(key).createGroup(group).pure[F]
     }
 
-    override def xAdd[T: Encoder](key: String, kv: (String, T)): F[StreamMessageId] = {
-      import kv.{_1 => objKey, _2 => objValue}
-      stream(key).add(StreamAddArgs.entry(objKey, objValue.encode())).pure[F]
+    def xAdd(key: String, kv: Map[String, String]): F[StreamMessageId] = {
+      stream(key).add(StreamAddArgs.entries(kv.asJava)).pure[F]
     }
 
     override def xDel(key: String, id: StreamMessageId): F[Long] = {
@@ -136,27 +130,22 @@ object RedisOperations {
       keys.delete(keySet.toList: _*).pure[F]
     }
 
-    override def sAdd[T: Encoder](key: String, value: T): F[Boolean] = {
-      set(key).add(value.encode()).pure[F]
+    override def sAdd(key: String, value: String): F[Boolean] = {
+      set(key).add(value).pure[F]
     }
 
     override def sMembers(key: String): F[Set[String]] = {
       set(key).readAll().asScala.toSet.pure[F]
     }
 
-    override def setEx[T: Encoder](key: String, seconds: Long, value: T): F[Unit] = {
-      bucket(key).set(value.encode(), seconds, TimeUnit.SECONDS).pure[F]
+    override def setEx(key: String, seconds: Long, value: String): F[Unit] = {
+      bucket(key).set(value, seconds, TimeUnit.SECONDS).pure[F]
     }
 
-    override def get[T: Decoder](key: String): F[Option[T]] = {
+    override def get(key: String): F[Option[String]] = {
       val nullableValue = bucket(key).get()
 
-      Option(nullableValue)
-        .map(_.decode())
-        .collect {
-          case Success(v) => v
-        }
-        .pure[F]
+      Option(nullableValue).pure[F]
     }
   }
 }

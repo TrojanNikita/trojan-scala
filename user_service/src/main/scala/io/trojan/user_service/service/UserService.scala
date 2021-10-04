@@ -6,22 +6,21 @@ import cats.implicits._
 import io.trojan.common.models.User
 import io.trojan.user_service.dao.UserDao
 
-class UserService[F[_]: Applicative : Monad](
+class UserService[F[_] : Monad](
   userDao: UserDao[F],
   redisService: RedisService[F]
 ) {
 
+  def init(): F[Unit] = userDao.init()
+
   def getUsers(): F[List[User]] = {
-    redisService
-      .getUsers()
-      .flatMap {
-        case Some(users) => users.pure[F]
-        case _ => userDao.selectUsers().flatTap(redisService.setUsers)
-      }
+    userDao.selectUsers()
   }
 
   def createUser(u: User): F[Long] = {
-    userDao.insertUser(u)
+    userDao
+      .insertUser(u)
+      .flatTap(_ => redisService.add[User](u))
   }
 
   def deleteUser(): F[Unit] = {

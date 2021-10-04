@@ -1,16 +1,11 @@
 package io.trojan.socket_service.config
 
-import pureconfig.ConfigReader
-import pureconfig.generic.semiauto.deriveReader
+import io.trojan.common.utils.WithConfigCodec
 
 case class ServerConfig(port: Int, host: String)
 
-case class Config(server: ServerConfig)
+case class Config(server: ServerConfig, redis: RedisConfig, user: UserSocketConfig)
 
-object ServerConfig {
-  implicit val codec: ConfigReader[ServerConfig] = deriveReader[ServerConfig]
-}
+object ServerConfig extends WithConfigCodec[ServerConfig]
 
-object Config {
-  implicit val codec: ConfigReader[Config] = deriveReader[Config]
-}
+object Config extends WithConfigCodec[Config]

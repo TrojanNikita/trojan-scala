@@ -6,6 +6,7 @@ import io.trojan.common.models.User
 import io.trojan.user_service.utils.Sql
 
 trait UserDao[F[_]] {
+  def init(): F[Unit]
   def selectUsers(): F[List[User]]
   def insertUser(u: User): F[Long]
   def deleteUsers(): F[Unit]
@@ -13,6 +14,17 @@ trait UserDao[F[_]] {
 
 object UserDao {
   final class MySql[F[_]](sql: Sql[F]) extends UserDao[F] {
+
+
+
+    // TODO сделать с помощью эволюций
+    override def init(): F[Unit] = {
+      val schema = scala.io.Source.fromResource("schema.sql").mkString
+      sql.execute {
+        doobie.Update(schema).run().void
+      }
+    }
+
     override def selectUsers(): F[List[User]] = {
       sql.execute {
         sql"""select * from users""".query[User].to[List]

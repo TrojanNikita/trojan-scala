@@ -38,13 +38,15 @@ object UserServiceApplication extends IOApp {
     val userService: UserService[IO] = new UserService[IO](userDao, redisService)
     val router: AppRouter[IO] = new AppRouter[IO](userService)
 
-    Logger[IO].info(s"start server at ${conf.postgres.url}") >>
-    BlazeServerBuilder[IO](ec)
+    def startServer(): IO[ExitCode] = BlazeServerBuilder[IO](ec)
       .bindHttp(conf.server.port, conf.server.host)
       .withHttpApp(router.allRoutes)
       .serve
       .compile
       .drain
       .as(ExitCode.Success)
+
+    userService.init() >> startServer()
+
   }
 }
