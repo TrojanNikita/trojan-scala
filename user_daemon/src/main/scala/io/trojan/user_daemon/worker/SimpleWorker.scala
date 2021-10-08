@@ -6,7 +6,7 @@ import scala.concurrent.duration.DurationInt
 import cats.effect.Temporal
 import cats.implicits._
 import fs2.Stream
-import io.trojan.common.models.User
+import io.trojan.models.User
 import io.trojan.user_daemon.config.Config
 import io.trojan.user_daemon.service.UserService
 import org.joda.time.DateTime
@@ -26,20 +26,20 @@ class SimpleWorker[F[_] : Temporal](userService: UserService[F])(
     deleteUsersStream
   ).parJoin(2).compile.drain
 
-  def createUserStream: Stream[F, Unit] = Stream
-    .awakeDelay[F](4.seconds)
-    .evalMap(_ => L.info("createUserProcess") >> createUserProcess)
+  val createUserStream: Stream[F, Unit] = Stream
+    .awakeDelay[F](500.millisecond)
+    .evalMap(_ => L.info("createUserProcess") >> createUserProcess())
 
-  def deleteUsersStream: Stream[F, Unit] = Stream
+  val deleteUsersStream: Stream[F, Unit] = Stream
     .awakeDelay[F](40.seconds)
-    .evalMap(_ => L.info("deleteUsers") >> userService.deleteUsers)
+    .evalMap(_ => L.info("deleteUsers") >> userService.deleteUsers())
 
-  def createUserProcess: F[Unit] = {
+  def createUserProcess(): F[Unit] = {
     val randomId = DateTime.now.getMillis / 1000
     val randomUser = User(
       id = randomId,
       name = "A_" + randomId
     )
-    userService.createUser(randomUser).void
+    userService.createUser(randomUser)
   }
 }

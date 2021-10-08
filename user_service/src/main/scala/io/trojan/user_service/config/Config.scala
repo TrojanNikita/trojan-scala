@@ -1,8 +1,8 @@
 package io.trojan.user_service.config
 
-import pureconfig.ConfigReader
-import pureconfig.generic.semiauto.deriveReader
+import io.trojan.utils.WithConfigCodec
 
+case class Config(server: ServerConfig, postgres: PostgresConfig, redis: RedisConfig)
 case class ServerConfig(port: Int, host: String)
 case class PostgresConfig(
   numThreads: Int,
@@ -12,16 +12,7 @@ case class PostgresConfig(
   password: String
 )
 
-case class Config(server: ServerConfig, postgres: PostgresConfig, redis: RedisConfig)
 
-object ServerConfig {
-  implicit val codec: ConfigReader[ServerConfig] = deriveReader[ServerConfig]
-}
-
-object PostgresConfig {
-  implicit val codec: ConfigReader[PostgresConfig] = deriveReader[PostgresConfig]
-}
-
-object Config {
-  implicit val codec: ConfigReader[Config] = deriveReader[Config]
-}
+object ServerConfig extends WithConfigCodec[ServerConfig]
+object PostgresConfig extends WithConfigCodec[PostgresConfig]
+object Config extends WithConfigCodec[Config]

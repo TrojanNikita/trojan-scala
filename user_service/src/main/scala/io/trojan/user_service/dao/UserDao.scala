@@ -2,11 +2,10 @@ package io.trojan.user_service.dao
 
 import cats.implicits.toFunctorOps
 import doobie.implicits.toSqlInterpolator
-import io.trojan.common.models.User
-import io.trojan.user_service.utils.Sql
+import io.trojan.models.User
+import io.trojan.sql.{Sql, WithDB}
 
-trait UserDao[F[_]] {
-  def init(): F[Unit]
+trait UserDao[F[_]] extends WithDB[F] {
   def selectUsers(): F[List[User]]
   def insertUser(u: User): F[Long]
   def deleteUsers(): F[Unit]
@@ -14,8 +13,6 @@ trait UserDao[F[_]] {
 
 object UserDao {
   final class MySql[F[_]](sql: Sql[F]) extends UserDao[F] {
-
-
 
     // TODO сделать с помощью эволюций
     override def init(): F[Unit] = {

@@ -2,18 +2,17 @@ package io.trojan.user_daemon.service
 
 import scala.concurrent.ExecutionContext
 
-import cats.implicits._
 import cats.effect.Async
 import cats.effect.kernel.Concurrent
-import io.trojan.common.models.User
+import io.trojan.models.User
 import io.trojan.rpc.UserApiAlg
 import io.trojan.user_daemon.config.Config
 import org.http4s.client.Client
 import org.typelevel.log4cats.Logger
 
 trait UserService[F[_]] {
-  def createUser(u: User): F[Long]
-  def deleteUsers: F[Unit]
+  def createUser(u: User): F[Unit]
+  def deleteUsers(): F[Unit]
 }
 
 object UserService {
@@ -25,11 +24,11 @@ object UserService {
       with endpoints4s.http4s.client.JsonEntitiesFromCodecs
       with UserService[F] {
 
-    override def createUser(u: User): F[Long] = {
+    override def createUser(u: User): F[Unit] = {
       postUserApi.run(u)
     }
 
-    override def deleteUsers: F[Unit] = {
+    override def deleteUsers(): F[Unit] = {
       deleteUserApi.run()
     }
   }

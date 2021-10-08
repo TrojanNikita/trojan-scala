@@ -2,7 +2,7 @@ package io.trojan.socket_service.config
 
 import scala.concurrent.duration.FiniteDuration
 
-import io.trojan.common.utils.WithConfigCodec
+import io.trojan.utils.WithConfigCodec
 
 case class RedisConfig(
   hosts: Seq[String],

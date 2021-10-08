@@ -2,12 +2,10 @@ package io.trojan.user_service.config
 
 import scala.concurrent.duration.FiniteDuration
 
-import pureconfig.ConfigReader
-import pureconfig.generic.semiauto.deriveReader
+import io.trojan.utils.WithConfigCodec
 
 case class RedisConfig(
   hosts: Seq[String],
-
   dataBus: String,
   recoverCount: Int,
   claimIdleTime: FiniteDuration,
@@ -15,6 +13,4 @@ case class RedisConfig(
   group: String
 )
 
-object RedisConfig {
-  implicit val codec: ConfigReader[RedisConfig] = deriveReader[RedisConfig]
-}
+object RedisConfig extends WithConfigCodec[RedisConfig]

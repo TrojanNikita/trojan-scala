@@ -1,7 +1,5 @@
 package io.trojan.socket_service.service
 
-import scala.concurrent.ExecutionContext
-
 import cats.effect._
 import cats.effect.std.Queue
 import cats.syntax.all._
@@ -12,12 +10,11 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.server.websocket._
 import org.http4s.websocket.WebSocketFrame
 import org.http4s.websocket.WebSocketFrame._
-import org.typelevel.log4cats.Logger
 
 
 class SocketService[F[_] : Async](
   userSocketWorker: UserSocketWorker[F]
-)(implicit ec: ExecutionContext, L: Logger[F]) extends Http4sDsl[F] {
+) extends Http4sDsl[F] {
 
   def routes: HttpRoutes[F] =
     HttpRoutes.of[F] {

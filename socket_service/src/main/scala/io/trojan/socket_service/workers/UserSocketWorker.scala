@@ -1,11 +1,10 @@
 package io.trojan.socket_service.workers
 
-import cats.implicits._
 import cats.effect.Temporal
+import cats.implicits._
 import fs2.{Pipe, Stream}
-import io.trojan.common.models.{RedisEvent, User}
+import io.trojan.models.User
 import io.trojan.socket_service.config.Config
-import io.trojan.socket_service.models.CustomError
 import io.trojan.socket_service.service.Helpers.SocketEncoder
 import io.trojan.socket_service.service.RedisService
 import org.http4s.websocket.WebSocketFrame
@@ -46,16 +45,16 @@ class UserSocketWorker[F[_] : Temporal](
       }
 
   //  TODO прикрутить эту штуку
-  private def handleError[T](error: Throwable, event: RedisEvent[T]): F[Unit] = {
-    error match {
-      case error: CustomError if error.isRecoverable =>
-        L.error(s"End Tasks ${event.idString} with custom ${error.getLocalizedMessage}")
-      case error: CustomError =>
-        L.warn(s"End Task ${event.idString} with custom ${error.getLocalizedMessage}, but task ack")
-          .>>(redisService.ackTask(event.id))
-      case error => L.error(s"End Tasks ${event.idString} with error ${error.getLocalizedMessage}")
-    }
-  }
+//  private def handleError[T](error: Throwable, event: RedisEvent[T]): F[Unit] = {
+//    error match {
+//      case error: CustomError if error.isRecoverable =>
+//        L.error(s"End Tasks ${event.idString} with custom ${error.getLocalizedMessage}")
+//      case error: CustomError =>
+//        L.warn(s"End Task ${event.idString} with custom ${error.getLocalizedMessage}, but task ack")
+//          .>>(redisService.ackTask(event.id))
+//      case error => L.error(s"End Tasks ${event.idString} with error ${error.getLocalizedMessage}")
+//    }
+//  }
 
   val fromClient: Pipe[F, WebSocketFrame, Unit] = _.evalMap {
     case Text(t, _) => L.info(t)

@@ -1,7 +1,7 @@
 package io.trojan.rpc
 
 import endpoints4s.algebra.circe.JsonEntitiesFromCodecs
-import io.trojan.common.models.User
+import io.trojan.models.User
 
 trait UserApiAlg extends JsonEntitiesFromCodecs {
   type RequestId = String
@@ -14,9 +14,9 @@ trait UserApiAlg extends JsonEntitiesFromCodecs {
     ok(jsonResponse[List[User]])
   )
 
-  protected val postUserApi: Endpoint[User, Long] = endpoint(
+  protected val postUserApi: Endpoint[User, Unit] = endpoint(
     post(urlPostUser, entity = jsonRequest[User]),
-    ok(jsonResponse[Long])
+    ok(emptyResponse)
   )
 
   protected val deleteUserApi: Endpoint[Unit, Unit] = endpoint(

@@ -4,11 +4,9 @@ import scala.util.Success
 
 import cats.effect.kernel.Sync
 import cats.implicits._
-import io.circe.Codec
-import io.trojan.common.models.{RedisCodec, RedisEvent}
-import io.trojan.common.redis.RedisClient
-import io.trojan.common.utils.Helpers.applyOrEmptyF
+import io.trojan.redis.{RedisClient, RedisCodec, RedisEvent}
 import io.trojan.socket_service.config.Config
+import io.trojan.utils.Helpers.applyOrEmptyF
 import org.redisson.api.{PendingEntry, StreamMessageId}
 import org.typelevel.log4cats.Logger
 
@@ -19,7 +17,7 @@ class RedisService[F[_] : Sync](client: RedisClient[F])(implicit config: Config,
 
   def initGroup: F[Unit] = client.xGroupCreate(redisConfig.dataBus, redisConfig.group)
 
-  def readStreamEvents[T: RedisCodec : Codec](consumer: String): F[List[RedisEvent[T]]] = {
+  def readStreamEvents[T: RedisCodec](consumer: String): F[List[RedisEvent[T]]] = {
     client
       .xReadGroup(redisConfig.dataBus, redisConfig.group, consumer, redisConfig.batchSize)
       .flatMap(parseTasks[T])
@@ -32,7 +30,7 @@ class RedisService[F[_] : Sync](client: RedisClient[F])(implicit config: Config,
     L.error(s"Tasks ${outdatedTaskIds.mkString(",")} will not be processed, max retry attempts was reached")
   }
 
-  def readFailedEvents[T: RedisCodec : Codec](consumer: String): F[List[RedisEvent[T]]] = {
+  def readFailedEvents[T : RedisCodec](consumer: String): F[List[RedisEvent[T]]] = {
     client
       .xPending(redisConfig.dataBus, redisConfig.group, StreamMessageId.MIN, StreamMessageId.MAX, redisConfig.batchSize)
       .flatMap { entries =>
@@ -63,7 +61,7 @@ class RedisService[F[_] : Sync](client: RedisClient[F])(implicit config: Config,
 
   def ackTasks(ids: Set[StreamMessageId]): F[Unit] = client.xAck(redisConfig.dataBus, redisConfig.group, ids).void
 
-  private def parseTasks[R: RedisCodec : Codec](taskMessages: Map[StreamMessageId, Map[String, String]]): F[List[RedisEvent[R]]] = {
+  private def parseTasks[R: RedisCodec](taskMessages: Map[StreamMessageId, Map[String, String]]): F[List[RedisEvent[R]]] = {
     taskMessages
       .toList
       .traverseFilter { case (id, event) =>
@@ -74,4 +72,3 @@ class RedisService[F[_] : Sync](client: RedisClient[F])(implicit config: Config,
       }
   }
 }
-
